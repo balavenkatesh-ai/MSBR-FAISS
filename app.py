@@ -4,8 +4,7 @@ import pathlib
 from tempfile import NamedTemporaryFile
 
 st.title("MSBR AutmotaionX")
-st.subheader("Document QA Chatbot using LLaMA 2, FAISS, and LangChain")
-st.text("LLM - Threat Library")
+st.subheader("LLM - Threat Library Mapping Tool")
 
 st.divider()
 

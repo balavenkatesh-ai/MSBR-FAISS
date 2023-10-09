@@ -8,7 +8,7 @@ st.subheader("LLM - Threat Library Mapping Tool")
 
 st.divider()
 
-uploaded_file = st.file_uploader("Upload a Single Document:", accept_multiple_files=False, type=['pdf', 'txt'])
+uploaded_file = st.file_uploader("Upload a Single Document:", accept_multiple_files=False, type=['pdf', 'txt','csv'])
 
 if uploaded_file is not None:
     filetype = pathlib.Path(uploaded_file.name).suffix
@@ -16,9 +16,11 @@ if uploaded_file is not None:
         f.write(uploaded_file.getbuffer())
         docs = df_from_doc.df_from_doc(f.name, str(filetype).replace(".", ""))
     
+    
+    print(docs)
     model_name = st.selectbox("Select Sentence-Transformers Model for Embeddings:", ["all-MiniLM-L6-v2", "multi-qa-mpnet-base-dot-v1"])
 
-    pkl = create_search_index.create_search_index(docs, model_name)
+    pkl = create_search_index.create_csv_search_index(docs, model_name)
 
     question = st.text_input("Ask a Question:")
 

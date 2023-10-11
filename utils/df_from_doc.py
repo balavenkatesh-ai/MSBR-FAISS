@@ -1,6 +1,5 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import PyPDFLoader ,CSVLoader
+from langchain.document_loaders import PyPDFLoader ,CSVLoader,TextLoader
 from utils import clean_text, est_words_tokens
 import pandas as pd
 
@@ -20,9 +19,9 @@ def df_from_doc(filepath, filetype):
         docs["text"] = docs["text"].apply(lambda x: x[1]).apply(clean_text.clean_text); docs["page_number"] = 1
         docs = est_words_tokens.est_words_tokens(docs)
     elif filetype == "csv":
-        loader = CSVLoader(filepath,encoding="utf8")
-        pages = loader.load_and_split()
+        loader = CSVLoader(filepath, encoding="utf8")
         documents = loader.load()
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=0)
         docs = text_splitter.split_documents(documents)
+        docs = pd.DataFrame({"text": docs, "page_number": range(1, len(docs) + 1)})
     return docs

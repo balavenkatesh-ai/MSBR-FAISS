@@ -15,30 +15,32 @@ if uploaded_file is not None:
     with NamedTemporaryFile(dir='.', suffix=filetype) as f:
         f.write(uploaded_file.getbuffer())
         docs = df_from_doc.df_from_doc(f.name, str(filetype).replace(".", ""))
-    
-    
-    print(docs)
+
     model_name = st.selectbox("Select Sentence-Transformers Model for Embeddings:", ["all-MiniLM-L6-v2", "multi-qa-mpnet-base-dot-v1"])
 
-    pkl = create_search_index.create_csv_search_index(docs, model_name)
+    pkl = create_search_index.create_search_index(docs, model_name)
 
     question = st.text_input("Ask a Question:")
 
-    context = generate_context.generate_context(pkl, question, model_name, num_results = 5)
+    if st.button("Generate Response") and question.strip():  # Check if the question is not empty
+        context = generate_context.generate_context(pkl, question, model_name, num_results=1)
 
-    st.write("Estimated Context Length:", round(4/3*len(context.split())), "tokens", "\n")
-    wrap_print.wrap_print(context)
+        st.write("Estimated Context Length:", round(4/3*len(context.split())), "tokens", "\n")
+        st.write("context:", context)
+        wrap_print.wrap_print(context)
 
-    model_type = st.selectbox("Select LLM Type:", ["LLaMA-7B", "LLaMA-13B"])
-    llm = load_llm.load_llm(model_type= model_type, model_path= None)
-    context_dependency = st.selectbox("Select Context Dependence Level (set to low if the model is failing to generate context dependent answers):", ["low", "medium", "high"])
+        # model_path_13b = "/root/.cache/huggingface/hub/models--TheBloke--Llama-2-13B-chat-GGML/snapshots/3140827b4dfcb6b562cd87ee3d7f07109b014dd0/llama-2-13b-chat.ggmlv3.q5_1.bin"
+        # model_path_7b = ""
 
-    if st.button("Generate Response"):
-        st.write("Running, may take up to 60 seconds...")
-        with st.spinner(f"Running {model_type}..."):
-            output = run_llm.run_llm(llm, question, context, context_dependency)
+        # model_type = st.selectbox("Select LLM Type:", ["LLaMA-7B", "LLaMA-13B"])
+        # llm = load_llm.load_llm(model_type=model_type, model_path=model_path_13b)
+        # context_dependency = st.selectbox("Select Context Dependence Level (set to low if the model is failing to generate context dependent answers):", ["low", "medium", "high"])
 
-        if output["choices"][0]["text"].split("###")[4][-1] != ".":
-            st.success(output["choices"][0]["text"].split("###")[4] + "...")
-        elif output["choices"][0]["text"].split("###")[4][-1] == ".":
-            st.success(output["choices"][0]["text"].split("###")[4])
+        # st.write("Running, may take up to 60 seconds...")
+        # with st.spinner(f"Running {model_type}..."):
+        #     output = run_llm.run_llm(llm, question, context, context_dependency)
+
+        # if output["choices"][0]["text"].split("###")[4][-1] != ".":
+        #     st.success(output["choices"][0]["text"].split("###")[4] + "...")
+        # elif output["choices"][0]["text"].split("###")[4][-1] == ".":
+        #     st.success(output["choices"][0]["text"].split("###")[4])
